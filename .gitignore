@@ -1,0 +1,4 @@
+*.pyc
+.env.prod
+.env.prod.db
+*.swp
