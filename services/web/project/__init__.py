@@ -50,7 +50,7 @@ def login():
     
     good_credentials = are_creds_good(username,password)
     
-    if username is None:
+    if username is "":
         return render_template('login.html', bad_credentials=False)
     else:
         if not good_credentials:
