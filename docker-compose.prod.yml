@@ -16,8 +16,13 @@ services:
     depends_on:
       - db
   db:
-    image: postgres:13
+    build:
+      context: services/postgres
+      dockerfile: Dockerfile.prod
+    ports:
+      - 1467:5432
     volumes:
+      - ./:/tmp/db
       - postgres_data_prod:/var/lib/postgresql/data/
     env_file:
       - ./.env.prod.db
