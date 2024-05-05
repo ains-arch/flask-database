@@ -1,22 +1,56 @@
-<html>
-    <head><title>Chirper</title></head>
-    <body>
-        <h1>Chirper</h1>
-        <ul>
-            <li><a href='/'>Home</a></li>
-            <li><a href='/search'>Search</a></li>
-            
-            {% if logged_in %}
-            <li><a href='/create_message'>New Chirp</a></li>
-            <li><a href='/logout'>Logout</a></li>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>When The Data Is Large</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+        }
+        h1 {
+            color: #333;
+        }
+        nav {
+            margin-bottom: 20px;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 10px;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>When The Data Is Large!!!</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                {% if logged_in %}
+                <li><a href="/create_message">New Post</a></li>
+                <li><a href="/logout">Logout</a></li>
+                {% else %}
+                <li><a href="/login">Login</a></li>
+                <li><a href="/create_user">Create Account</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
 
-            {% else %}
-            <li><a href='/login'>Login</a></li>
-            <li><a href='/create_account'>Create Account</a></li>
-            {% endif %}
-        </ul>
-
+    <main>
         {% block content %}
         {% endblock %}
-    </body>
+    </main>
+</body>
 </html>

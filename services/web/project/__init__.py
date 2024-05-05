@@ -15,9 +15,13 @@ app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
 
 
-def are_creds_good(user, pw):
-    pass
-    # look into db and find
+def are_credentials_good(username, password):
+    if username == 'haxor' and password == '1337':
+        return True
+    else:
+        return False
+    # FIXME:
+    # look into db and check if the password is correct for the user
 
 
 class User(db.Model):
@@ -32,9 +36,16 @@ class User(db.Model):
 
 
 @app.route("/")
-def hello_world():
-    return render_template('root.html')
+def root():
+    print_debug_info()
 
+    messages = [{}]
+
+    username = request.cookies.get('username')
+    password = request.cookies.get('password')
+    good_credentials = are_credentials_good(username, password)
+
+    return render_template('root.html', logged_in=good_credentials, messages=messages)
 
 @app.route("/static/<path:filename>")
 def staticfiles(filename):
@@ -45,21 +56,46 @@ def staticfiles(filename):
 def mediafiles(filename):
     return send_from_directory(app.config["MEDIA_FOLDER"], filename)
 
+def print_debug_info():
+    # GET method
+    print('request.args.get("username")=', request.args.get("username"))
+    print('request.args.get{"password"}=', request.args.get("password"))
+
+    # POST method
+    print('request.form.get{"username"}=', request.form.get("username"))
+    print('request.form.get{"password"}=', request.form.get("password"))
+
+    # cookies
+    print('request.cookies.get{"username"}=', request.cookies.get("username"))
+    print('request.cookies.get{"password"}=', request.cookies.get("password"))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    print_debug_info()
+
     username = request.form.get("username")
     password = request.form.get("password")
 
-    good_credentials = are_creds_good(username, password)
+    print('username=', username)
+    print('password=', password)
 
-    if username == "":
+    good_credentials = are_credentials_good(username, password)
+    print('good credentials=', good_credentials)
+
+    if username is None:
         return render_template('login.html', bad_credentials=False)
     else:
         if not good_credentials:
             return render_template('login.html', bad_credentials=True)
         else:
-            return render_template('login.html', bad_credentials=False)
+            template = render_template(
+                    'login.html',
+                    bad_credentials=False,
+                    logged_in=True)
+            response = make_response(template)
+            response.set_cookie('username', username)
+            response.set_cookie('password', password)
+            return response
 
     return render_template('login.html')
 
