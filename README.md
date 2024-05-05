@@ -1,5 +1,5 @@
 # flask-on-docker
-[![](https://github.com/ains-arch/flask-database/workflows/tests_dev/badge.svg)](https://github.com/ains-arch/flask-database/actions?query=workflow%3Atests)
+[![tests](https://github.com/ains-arch/flask-database/actions/workflows/tests_dev.yml/badge.svg)](https://github.com/ains-arch/flask-database/actions/workflows/tests_dev.yml)
 
 ## Overview
 
