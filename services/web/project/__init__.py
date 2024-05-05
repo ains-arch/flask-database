@@ -14,9 +14,11 @@ app = Flask(__name__)
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
 
-def are_creds_good(user,pw):
+
+def are_creds_good(user, pw):
     pass
-    #look into db and find 
+    # look into db and find
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -31,7 +33,7 @@ class User(db.Model):
 
 @app.route("/")
 def hello_world():
-    return render_template('root.html') 
+    return render_template('root.html')
 
 
 @app.route("/static/<path:filename>")
@@ -43,14 +45,15 @@ def staticfiles(filename):
 def mediafiles(filename):
     return send_from_directory(app.config["MEDIA_FOLDER"], filename)
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    username=request.form.get("username")
-    password=request.form.get("password")
-    
-    good_credentials = are_creds_good(username,password)
-    
-    if username is "":
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    good_credentials = are_creds_good(username, password)
+
+    if username == "":
         return render_template('login.html', bad_credentials=False)
     else:
         if not good_credentials:
@@ -60,17 +63,21 @@ def login():
 
     return render_template('login.html')
 
+
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
     pass
+
 
 @app.route("/create_account", methods=["GET", "POST"])
 def create_account():
     pass
 
+
 @app.route("/create_message", methods=["GET", "POST"])
 def create_message():
     pass
+
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
