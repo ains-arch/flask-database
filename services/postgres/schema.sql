@@ -13,11 +13,19 @@ CREATE TABLE urls (
  * inside of a tweet someone else's tweet.
  */
 CREATE TABLE users (
-    id_users BIGINT PRIMARY KEY,
-    id_urls BIGINT REFERENCES urls(id_urls),
-    name TEXT,
+    id_users BIGSERIAL PRIMARY KEY,
+    name TEXT UNIQUE,
+    password TEXT,
+    id_urls BIGINT,
     FOREIGN KEY (id_urls) REFERENCES urls(id_urls)
 );
+
+/*
+ * Since the id_urls column in the users table is a foreign key
+ * referencing the urls table, creating an index on it can speed
+ * up queries that involve joining or filtering based on this column.
+ */
+CREATE INDEX users_id_urls_idx ON users (id_urls);
 
 /*
  * Tweets may be entered in hydrated or unhydrated form.
@@ -25,26 +33,32 @@ CREATE TABLE users (
 CREATE TABLE tweets (
     id_tweets BIGINT PRIMARY KEY,
     id_users BIGINT,
-    in_reply_to_status_id BIGINT,
-    in_reply_to_user_id BIGINT,
-    quoted_status_id BIGINT,
+    id_urls BIGINT,
+    created_at TIMESTAMPTZ,
     text TEXT,
     FOREIGN KEY (id_users) REFERENCES users(id_users),
-    FOREIGN KEY (in_reply_to_user_id) REFERENCES users(id_users)
-
-    -- NOTE:
-    -- We do not have the following foreign keys because they would require us
-    -- to store many unhydrated tweets in this table.
-    -- FOREIGN KEY (in_reply_to_status_id) REFERENCES tweets(id_tweets),
-    -- FOREIGN KEY (quoted_status_id) REFERENCES tweets(id_tweets)
-);
-
-CREATE TABLE tweet_urls (
-    id_tweets BIGINT,
-    id_urls BIGINT,
-    PRIMARY KEY (id_tweets, id_urls),
-    FOREIGN KEY (id_tweets) REFERENCES tweets(id_tweets),
     FOREIGN KEY (id_urls) REFERENCES urls(id_urls)
 );
+
+/*
+ * If you frequently query tweets based on the user they belong to,
+ * creating an index on the id_users column in the tweets table
+ * can improve query performance.
+ */
+CREATE INDEX tweets_id_users_idx ON tweets (id_users);
+
+/*
+ * If you frequently search for tweets based on the created_at timestamp, 
+ * add an index on that column.
+ */
+
+CREATE INDEX tweets_created_at_idx ON tweets (created_at);
+
+/*
+ * If you frequently query tweets based on the url they have,
+ * create an index on the id_urls column in the tweets table
+ * can improve query performance.
+ */
+CREATE INDEX tweets_id_url_idx ON tweets (id_urls);
 
 COMMIT;
