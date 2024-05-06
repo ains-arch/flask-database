@@ -19,5 +19,6 @@ jobs:
         docker-compose up -d --build
         docker ps -a
         sleep 20
-        ./load_tweets_dev.sh
-        docker-compose exec -T db ./run_tests.sh
+        python3 fake_data_urls.py
+        python3 fake_data_users.py
+        python3 fake_data_tweets.py
