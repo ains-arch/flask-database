@@ -2,6 +2,8 @@
 
 BEGIN;
 
+CREATE EXTENSION rum;
+    
 CREATE TABLE urls (
     id_urls BIGSERIAL PRIMARY KEY,
     url TEXT UNIQUE
@@ -26,6 +28,8 @@ CREATE TABLE users (
  * up queries that involve joining or filtering based on this column.
  */
 CREATE INDEX users_id_urls_idx ON users (id_urls);
+
+CREATE INDEX users_name_idx ON users(name);
 
 /*
  * Tweets may be entered in hydrated or unhydrated form.
@@ -60,5 +64,12 @@ CREATE INDEX tweets_created_at_idx ON tweets (created_at);
  * can improve query performance.
  */
 CREATE INDEX tweets_id_url_idx ON tweets (id_urls);
+
+/*
+ * RUM index, when I have it installed
+*/
+CREATE INDEX tweets_text_rum_idx ON tweets USING rum (to_tsvector('english', text) rum_tsvector_ops);
+
+CREATE INDEX tweets_created_at_id_tweets_idx ON tweets(created_at DESC, id_tweets);
 
 COMMIT;

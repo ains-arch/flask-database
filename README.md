@@ -11,6 +11,15 @@ and supports serving both static and user-uploaded media files via Nginx.
 
 ## Build Instructions
 
+First, if you're able, remove the volumes you've created in previous work
+to free up disk space.
+
+```sh
+docker stop $(docker ps -q)
+docker rm $(docker ps -qa)
+docker volume prune --all
+```
+
 ### Development
 
 Build the images and run the containers:

@@ -3,7 +3,21 @@ FROM postgis/postgis
 RUN apt-get update && apt-get install -y \
     less \
     make \
-    vim
+    vim \
+    git \
+    gcc \
+    postgresql-server-dev-16
+
+# install rum extensions from source
+RUN cd /tmp \
+ && pwd \
+ && git clone https://github.com/postgrespro/rum \
+ && pwd \
+ && ls \
+ && cd rum \
+ && make USE_PGXS=1 \
+ && make USE_PGXS=1 install \
+ && rm -rf /tmp/rum
 
 WORKDIR /tmp/db
 
