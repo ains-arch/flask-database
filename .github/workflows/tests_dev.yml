@@ -19,6 +19,7 @@ jobs:
         docker-compose up -d --build
         docker ps -a
         sleep 20
+        pip install faker
         python3 fake_data_urls.py
         python3 fake_data_users.py
         python3 fake_data_tweets.py
