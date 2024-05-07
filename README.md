@@ -42,6 +42,7 @@ Add a small amount of data:
 Note that this may take a few minutes depending on the load on your server.
 
 ```sh
+$ cd data
 $ ./fake_urls.sh 10000 1000 1000 dev
 Insertion complete.
 
@@ -60,6 +61,7 @@ Insertion complete.
 real    0m4.717s
 user    0m1.060s
 sys     0m0.201s
+$ cd ..
 ```
 
 Check the data loaded correctly:
@@ -134,12 +136,14 @@ Test it out at [http://localhost:8181](http://localhost:8181)!
 Add the data:
 
 ```sh
+$ cd data
 $ nohup ./fake_urls.sh 10000000 1000000 1000000 prod > data_urls.log &
 $ nohup ./fake_users.sh 10000000 1000000 1000000 prod > data_users.log &
 $ nohup ./fake_tweets.sh 10000000 1000000 1000000 prod > data_tweets.log &
 $ cat data_urls.log
 $ cat data_users.log
 $ cat data_tweets.log
+$ cd ..
 ```
 
 In order to speed up data insertion, it may be helpful to drop

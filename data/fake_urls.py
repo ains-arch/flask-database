@@ -87,8 +87,6 @@ num_rows_users = args.users
 num_rows_tweets = args.tweets
 
 # Generate fake data
-generate_urls(num_rows_urls)
-generate_users(num_rows_users, num_rows_urls)
 generate_tweets(num_rows_tweets, num_rows_users, num_rows_urls)
 
 # Fill tables to reach the desired row counts
@@ -99,24 +97,6 @@ while current_row_count < num_rows_urls:
     additional_rows = min(desired_row_count_urls - current_row_count, num_rows_urls)
     generate_urls(additional_rows)
     cur.execute("SELECT COUNT(*) FROM urls")
-    current_row_count = cur.fetchone()[0]
-
-cur.execute("SELECT COUNT(*) FROM users")
-current_row_count = cur.fetchone()[0]
-desired_row_count_users = int(num_rows_users * 1.1)  # 110% of the given row count
-while current_row_count < num_rows_users:
-    additional_rows = min(desired_row_count_users - current_row_count, num_rows_users)
-    generate_users(additional_rows, num_rows_urls)  # Assuming num_rows_urls is the total number of URLs
-    cur.execute("SELECT COUNT(*) FROM users")
-    current_row_count = cur.fetchone()[0]
-
-cur.execute("SELECT COUNT(*) FROM tweets")
-current_row_count = cur.fetchone()[0]
-desired_row_count_tweets = int(num_rows_tweets * 1.1)  # 110% of the given row count
-while current_row_count < num_rows_tweets:
-    additional_rows = min(desired_row_count_tweets - current_row_count, num_rows_tweets)
-    generate_tweets(additional_rows, num_rows_users, num_rows_urls)
-    cur.execute("SELECT COUNT(*) FROM tweets")
     current_row_count = cur.fetchone()[0]
 
 # Close cursor and connection

@@ -25,5 +25,5 @@ else
 fi
 
 # Run fake_data.py script with arguments in parallel
-time python3 fake_data.py --urls=$num_rows_urls --users=$num_rows_users --tweets=$num_rows_tweets --db="$db_connection_string"
+time python3 fake_users.py --urls=$num_rows_urls --users=$num_rows_users --tweets=$num_rows_tweets --db="$db_connection_string"
 
