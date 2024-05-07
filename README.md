@@ -15,9 +15,9 @@ First, if you're able, remove the volumes you've created in previous work
 to free up disk space.
 
 ```sh
-docker stop $(docker ps -q)
-docker rm $(docker ps -qa)
-docker volume prune --all
+$ docker stop $(docker ps -q)
+$ docker rm $(docker ps -qa)
+$ docker volume prune --all
 ```
 
 ### Development
@@ -25,30 +25,65 @@ docker volume prune --all
 Build the images and run the containers:
 
 ```sh
-docker-compose up -d --build
+$ docker-compose up -d --build
 ```
 
 Check it worked as expected:
 
 ```sh
-docker-compose logs
+$ docker-compose logs
 ```
 
 Test it out at [http://localhost:8080](http://localhost:8080).
 
-Add the data:
+Add a small amount of data:
 
-This may take up to a few minutes, depending on the load on the server.
+Note that this may take a few minutes depending on the load on your server.
 
 ```sh
-./load_tweets_dev.sh
+$ ./fake_data.sh 10000 1000 1000 dev
+Insertion complete.
+
+real    0m20.361s
+user    0m7.521s
+sys     0m1.130s
 ```
 
 Check the data loaded correctly:
 
 ```sh
-docker-compose exec -T db ./run_tests.sh
+$ docker-compose exec db psql
+psql (16.2 (Debian 16.2-1.pgdg110+2))
+Type "help" for help.
+
+hello_flask=# SELECT
+    'urls' AS table_name,
+    COUNT(*) AS row_count
+FROM
+    urls
+UNION ALL
+SELECT
+    'users' AS table_name,
+    COUNT(*) AS row_count
+FROM
+    users
+UNION ALL
+SELECT
+    'tweets' AS table_name,
+    COUNT(*) AS row_count
+FROM
+    tweets;
+ table_name | row_count
+------------+-----------
+ urls       |     10387
+ users      |      1009
+ tweets     |      1049
+(3 rows)
 ```
+
+Due to randomness in the data generation, your numbers will be a little
+different than mine. They should all be equal to or greater than the input
+row numbers, though.
 
 ### Production
 
@@ -84,12 +119,43 @@ Test it out at [http://localhost:8181](http://localhost:8181)!
 Add the data:
 
 ```sh
-./load_tweets_prod.sh
+./fake_data.sh 10000 1000 1000 prod
+Insertion complete.
+
+real    0m21.465s
+user    0m7.645s
+sys     0m1.431s
 ```
 
 Check that the data loaded correctly:
 
 ```sh
 source .env.prod
-docker-compose exec -e PGUSER="$PGUSER" -e PGPASSWORD="$PGPASSWORD" -T db ./run_tests.sh
+docker-compose exec -e PGUSER="$PGUSER" -e PGPASSWORD="$PGPASSWORD" db psql
+psql (16.2 (Debian 16.2-1.pgdg110+2))
+Type "help" for help.
+
+$YOUR USERNAME HERE=# SELECT
+    'urls' AS table_name,
+    COUNT(*) AS row_count
+FROM
+    urls
+UNION ALL
+SELECT
+    'users' AS table_name,
+    COUNT(*) AS row_count
+FROM
+    users
+UNION ALL
+SELECT
+    'tweets' AS table_name,
+    COUNT(*) AS row_count
+FROM
+    tweets;
+ table_name | row_count
+------------+-----------
+ urls       |     10403
+ users      |      1010
+ tweets     |      1056
+(3 rows)
 ```
