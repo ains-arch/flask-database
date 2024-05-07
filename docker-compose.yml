@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  web:
+  webd:
     build: ./services/web
     command: python manage.py run -h 0.0.0.0
     volumes:
@@ -11,11 +11,10 @@ services:
     env_file:
       - ./.env.dev
     depends_on:
-      - db
-  db:
-    build: services/postgres
+      - dbd
+  dbd:
+    build: ./services/postgres
     volumes:
-      - ./:/tmp/db
       - postgres_data:/var/lib/postgresql/data/
     environment:
       - POSTGRES_USER=hello_flask
