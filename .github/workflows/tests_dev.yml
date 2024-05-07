@@ -18,8 +18,8 @@ jobs:
         git submodule update
         docker-compose up -d --build
         docker ps -a
-        sleep 20
-        pip install faker
-        python3 fake_data_urls.py
-        python3 fake_data_users.py
-        python3 fake_data_tweets.py
+        sleep 5
+        docker-compose logs db
+        docker-compose logs web
+        sh fake_data.sh 10000 1000 1000
+        docker-compose exec -T db psql -U your_username -d your_database_name -c "SELECT 'urls' AS table_name, COUNT(*) AS row_count FROM urls UNION ALL SELECT 'tweets' AS table_name, COUNT(*) AS row_count FROM tweets UNION ALL SELECT 'users' AS table_name, COUNT(*) AS row_count FROM users;"
