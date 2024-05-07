@@ -6,7 +6,7 @@ CREATE EXTENSION rum;
     
 CREATE TABLE urls (
     id_urls BIGSERIAL PRIMARY KEY,
-    url TEXT UNIQUE
+    url TEXT
 );
 
 /*
@@ -27,7 +27,7 @@ CREATE TABLE users (
  * referencing the urls table, creating an index on it can speed
  * up queries that involve joining or filtering based on this column.
  */
-CREATE INDEX users_id_urls_idx ON users (id_urls);
+CREATE INDEX users_id_urls_idx ON users(id_urls);
 
 CREATE INDEX users_name_idx ON users(name);
 
