@@ -32,7 +32,7 @@ Check it worked as expected:
 
 ```sh
 $ docker-compose -f docker-compose.yml logs dbd
-$ docker-compose -f docker-compoes.yml logs webd
+$ docker-compose -f docker-compose.yml logs webd
 ```
 
 Test it out at [http://localhost:8080](http://localhost:8080).

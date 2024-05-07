@@ -20,7 +20,11 @@ jobs:
         docker ps -a
         sleep 5
         pip install faker
-        docker-compose logs db
-        docker-compose logs web
-        ./fake_data.sh 10000 1000 1000 dev
-        docker-compose exec -T db psql -c "SELECT 'urls' AS table_name, COUNT(*) AS row_count FROM urls UNION ALL SELECT 'tweets' AS table_name, COUNT(*) AS row_count FROM tweets UNION ALL SELECT 'users' AS table_name, COUNT(*) AS row_count FROM users;"
+        docker-compose logs dbd
+        docker-compose logs webd
+        cd data
+        ./fake_urls.sh 10000 1000 1000 dev
+        ./fake_users.sh 10000 1000 1000 dev
+        ./fake_tweets.sh 10000 1000 1000 dev
+        cd ..
+        docker-compose exec -T dbd psql -c "SELECT 'urls' AS table_name, COUNT(*) AS row_count FROM urls UNION ALL SELECT 'tweets' AS table_name, COUNT(*) AS row_count FROM tweets UNION ALL SELECT 'users' AS table_name, COUNT(*) AS row_count FROM users;"

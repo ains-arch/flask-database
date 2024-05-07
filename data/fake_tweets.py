@@ -22,43 +22,6 @@ cur = conn.cursor()
 # Faker instance for generating fake data
 fake = Faker()
 
-# Function to generate fake URLs and insert them into the urls table
-def generate_urls(num_rows):
-    for _ in range(num_rows):
-        url = fake.url()
-        try:
-            cur.execute("INSERT INTO urls (url) VALUES (%s)", (url,))
-        except psycopg2.IntegrityError as e:
-            if e.pgcode == errorcodes.UNIQUE_VIOLATION:
-                # Ignore unique constraint violation error
-                pass
-            else:
-                print("Error inserting URL:", e)
-            conn.rollback()
-        else:
-            conn.commit()
-
-# Function to generate fake users and insert them into the users table
-def generate_users(num_rows, num_urls):
-    for i in range(num_rows):
-        name = fake.user_name()
-        password = fake.password()
-        id_urls = random.randint(1, num_urls)
-        try:
-            cur.execute("INSERT INTO users (name, password, id_urls) VALUES (%s, %s, %s)", (name, password, id_urls))
-        except psycopg2.IntegrityError as e:
-            if e.pgcode == errorcodes.UNIQUE_VIOLATION:
-                # Ignore unique constraint violation error
-                pass
-            elif e.pgcode == errorcodes.FOREIGN_KEY_VIOLATION:
-                # Ignore foreign key violation error
-                pass
-            else:
-                print("Error inserting user:", e)
-            conn.rollback()
-        else:
-            conn.commit()
-
 # Function to generate fake tweets and insert them into the tweets table
 def generate_tweets(num_rows, num_users, num_urls):
     for i in range(num_rows):
@@ -92,7 +55,7 @@ generate_tweets(num_rows_tweets, num_rows_users, num_rows_urls)
 # Fill tables to reach the desired row counts
 cur.execute("SELECT COUNT(*) FROM tweets")
 current_row_count = cur.fetchone()[0]
-desired_row_count_tweets = int(num_rows_tweets * 1.1)  # 110% of the given row count
+desired_row_count_tweets = min(10000+num_rows_tweets, int(num_rows_tweets * 1.1))  # 110% of the given row count
 while current_row_count < num_rows_tweets:
     additional_rows = min(desired_row_count_tweets - current_row_count, num_rows_tweets)
     generate_tweets(additional_rows, num_rows_users, num_rows_urls)

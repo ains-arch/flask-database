@@ -22,22 +22,6 @@ cur = conn.cursor()
 # Faker instance for generating fake data
 fake = Faker()
 
-# Function to generate fake URLs and insert them into the urls table
-def generate_urls(num_rows):
-    for _ in range(num_rows):
-        url = fake.url()
-        try:
-            cur.execute("INSERT INTO urls (url) VALUES (%s)", (url,))
-        except psycopg2.IntegrityError as e:
-            if e.pgcode == errorcodes.UNIQUE_VIOLATION:
-                # Ignore unique constraint violation error
-                pass
-            else:
-                print("Error inserting URL:", e)
-            conn.rollback()
-        else:
-            conn.commit()
-
 # Function to generate fake users and insert them into the users table
 def generate_users(num_rows, num_urls):
     for i in range(num_rows):
@@ -59,28 +43,6 @@ def generate_users(num_rows, num_urls):
         else:
             conn.commit()
 
-# Function to generate fake tweets and insert them into the tweets table
-def generate_tweets(num_rows, num_users, num_urls):
-    for i in range(num_rows):
-        id_users = random.randint(1, num_users)
-        id_urls = random.randint(1, num_urls)
-        created_at = fake.date_time_between(start_date='-1y', end_date='now')
-        text = fake.text()
-        try:
-            cur.execute("INSERT INTO tweets (id_users, id_urls, created_at, text) VALUES (%s, %s, %s, %s)",
-                        (id_users, id_urls, created_at, text))
-        except psycopg2.IntegrityError as e:
-            if e.pgcode == errorcodes.UNIQUE_VIOLATION:
-                # Ignore unique constraint violation error
-                pass
-            elif e.pgcode == errorcodes.FOREIGN_KEY_VIOLATION:
-                pass
-            else:
-                print("Error inserting tweet:", e)
-            conn.rollback()
-        else:
-            conn.commit()
-
 # Extract command line arguments
 num_rows_urls = args.urls
 num_rows_users = args.users
@@ -92,7 +54,7 @@ generate_users(num_rows_users, num_rows_urls)
 # Fill tables to reach the desired row counts
 cur.execute("SELECT COUNT(*) FROM users")
 current_row_count = cur.fetchone()[0]
-desired_row_count_users = int(num_rows_users * 1.1)  # 110% of the given row count
+desired_row_count_users = min(num_rows_users+10000, int(num_rows_users * 1.1))  # 110% of the given row count
 while current_row_count < num_rows_users:
     additional_rows = min(desired_row_count_users - current_row_count, num_rows_users)
     generate_users(additional_rows, num_rows_urls)  # Assuming num_rows_urls is the total number of URLs
