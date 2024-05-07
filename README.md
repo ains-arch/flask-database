@@ -55,8 +55,10 @@ Check the data loaded correctly:
 $ docker-compose exec db psql
 psql (16.2 (Debian 16.2-1.pgdg110+2))
 Type "help" for help.
-
-hello_flask=# SELECT
+hello_flask=#
+```
+```sql
+SELECT
     'urls' AS table_name,
     COUNT(*) AS row_count
 FROM
@@ -134,8 +136,10 @@ source .env.prod
 docker-compose exec -e PGUSER="$PGUSER" -e PGPASSWORD="$PGPASSWORD" db psql
 psql (16.2 (Debian 16.2-1.pgdg110+2))
 Type "help" for help.
-
-$YOUR USERNAME HERE=# SELECT
+$YOUR USERNAME HERE=#
+```
+```sql
+SELECT
     'urls' AS table_name,
     COUNT(*) AS row_count
 FROM
