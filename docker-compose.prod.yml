@@ -22,7 +22,7 @@ services:
     ports:
       - 1467:5432
     volumes:
-      - postgres_data_prod:/home/app/postgres/data
+      - $HOME/bigdata/postgres_data_prod:/home/app/postgres/data
     env_file:
       - ./.env.prod.db
   nginx:
