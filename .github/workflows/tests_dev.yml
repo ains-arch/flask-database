@@ -19,6 +19,7 @@ jobs:
         docker-compose up -d --build
         docker ps -a
         sleep 5
+        pip install faker
         docker-compose logs db
         docker-compose logs web
         sh fake_data.sh 10000 1000 1000
