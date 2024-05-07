@@ -14,9 +14,9 @@ num_rows_tweets=$3
 environment=$4
 
 # Determine the connection string based on the environment
-if [ "$environment" == "dev" ]; then
+if [ "$environment" = "dev" ]; then
     db_connection_string="postgresql://hello_flask:hello_flask@localhost:1457"
-elif [ "$environment" == "prod" ]; then
+elif [ "$environment" = "prod" ]; then
     source .env.prod
     db_connection_string="postgresql://$PGUSER:$PGPASSWORD@localhost:1467"
 else
