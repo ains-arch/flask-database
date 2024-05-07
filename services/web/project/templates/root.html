@@ -3,4 +3,20 @@
 {% block content %}
 <h2>Home</h2>
 <p>Welcome to my big data final!</p>
+
+  <h3>Recent Posts</h3>
+  {% if messages %}
+    {% for message in messages %}
+        <strong>{{ message.screen_name }}</strong>
+        <p>{{ message.text }}</p>
+        <small>Posted on {{ message.created_at }}</small>
+    {% endfor %}
+  {% else %}
+    <p>No more posts to show.</p>
+  {% endif %}
+  {% if page > 1 %}
+    <a href="{{ url_for('hello_world', page=page-1) }}">Previous</a>
+  {% endif %}
+  <a href="{{ url_for('hello_world', page=page+1) }}">Next</a>
+
 {% endblock %}

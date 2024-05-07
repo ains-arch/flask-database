@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Search Posts</h2>
+<form action="{{ url_for('search') }}" method="get">
+    <input type="text" name="q" placeholder="Search posts..." required>
+    <button type="submit">Search</button>
+</form>
+
+{% if messages %}
+    <div>
+        <h3>Search Results</h3>
+        {% for message in messages %}
+             <strong>{{ message.screen_name }}</strong>
+             <p>{{ message.highlighted_text | safe }}</p>
+             <small>Posted on {{ message.created_at }}</small>
+        {% endfor %}
+    </div>
+        {% if page > 1 %}
+            <a href="{{ url_for('search', q=query, page=page-1) }}">Previous</a>
+        {% endif %}
+        <a href="{{ url_for('search', q=query, page=page+1) }}">Next</a>
+{% else %}
+    <p>No results found.</p>
+{% endif %}
+{% endblock %}
