@@ -3,15 +3,18 @@ import random
 import psycopg2
 from psycopg2 import errorcodes
 from faker import Faker
+import argparse
+
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description='Generate fake data for testing.')
+parser.add_argument('--urls', type=int, help='Number of rows for the urls table')
+parser.add_argument('--users', type=int, help='Number of rows for the users table')
+parser.add_argument('--tweets', type=int, help='Number of rows for the tweets table')
+parser.add_argument('--db', type=str, help='Database connection string')
+args = parser.parse_args()
 
 # Connect to the PostgreSQL database
-conn = psycopg2.connect(
-    dbname="hello_flask",
-    user="hello_flask",
-    password="hello_flask",
-    host="localhost",
-    port="1457"
-)
+conn = psycopg2.connect(args.db)
 
 # Create a cursor object
 cur = conn.cursor()
@@ -79,12 +82,9 @@ def generate_tweets(num_rows, num_users, num_urls):
             conn.commit()
 
 # Extract command line arguments
-num_rows_urls = int(sys.argv[1])
-num_rows_users = int(sys.argv[2])
-num_rows_tweets = int(sys.argv[3])
-
-# Calculate half of the max IDs for users and tweets
-half_ids = max(num_rows_urls, num_rows_users) // 2
+num_rows_urls = args.urls
+num_rows_users = args.users
+num_rows_tweets = args.tweets
 
 # Generate fake data
 generate_urls(num_rows_urls)
