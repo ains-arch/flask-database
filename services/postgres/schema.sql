@@ -35,7 +35,7 @@ CREATE INDEX users_name_idx ON users(name);
  * Tweets may be entered in hydrated or unhydrated form.
  */
 CREATE TABLE tweets (
-    id_tweets BIGINT PRIMARY KEY,
+    id_tweets BIGSERIAL PRIMARY KEY,
     id_users BIGINT,
     id_urls BIGINT,
     created_at TIMESTAMPTZ,
