@@ -15,8 +15,8 @@
     <p>No more posts to show.</p>
   {% endif %}
   {% if page > 1 %}
-    <a href="{{ url_for('hello_world', page=page-1) }}">Previous</a>
+    <a href="{{ url_for('root', page=page-1) }}">Previous</a>
   {% endif %}
-  <a href="{{ url_for('hello_world', page=page+1) }}">Next</a>
+  <a href="{{ url_for('root', page=page+1) }}">Next</a>
 
 {% endblock %}

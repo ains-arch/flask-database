@@ -1,4 +1,7 @@
 import os
+from sqlalchemy import text
+from datetime import datetime
+
 from flask import (
     Flask,
     jsonify,
@@ -7,47 +10,64 @@ from flask import (
     render_template,
     make_response
 )
+
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
-
+import sqlalchemy
 
 app = Flask(__name__)
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
-
-
-def are_credentials_good(username, password):
-    if username == 'haxor' and password == '1337':
-        return True
-    else:
-        return False
-    # FIXME:
-    # look into db and check if the password is correct for the user
-
+psql_connection = "postgresql://hello_flask:hello_flask@dbd:5432"
 
 class User(db.Model):
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(128), unique=True, nullable=False)
-    active = db.Column(db.Boolean(), default=True, nullable=False)
+    id_users = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), unique=True, nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+    id_urls = db.Column(db.Integer)
 
-    def __init__(self, email):
-        self.email = email
+    def __init__(self, name, password):
+        self.name = name
+        self.password = password
 
+def are_credentials_good(username, password):
+    engine = sqlalchemy.create_engine(psql_connection)
+    with engine.connect() as connection:
+        # Prepare and execute the SQL command
+        sqlcommand = "SELECT password FROM users WHERE name = :name"
+        result = connection.execute(text(sqlcommand), {'name': username}).fetchone()
+
+        # Check if the user was found and the password matches
+        if result and result[0] == password:
+            return True
 
 @app.route("/")
 def root():
-    print_debug_info()
+    page = request.args.get('page', 1, type=int)
+    messages_per_page = 20
+    offset = (page - 1) * messages_per_page
 
-    messages = [{}]
+    sqlcommand = """
+    SELECT t.text, t.created_at, u.name
+    FROM tweets t
+    JOIN users u ON t.id_users = u.id_users
+    ORDER BY t.created_at DESC, id_tweets
+    LIMIT :limit OFFSET :offset;
+    """
+    engine = sqlalchemy.create_engine(psql_connection)
+    connection = engine.connect()
+    result = connection.execute(text(sqlcommand), {'limit': messages_per_page, 'offset': offset}).fetchall()
+    connection.close()
+
+    messages = [{'text': msg[0], 'created_at': msg[1], 'name': msg[2]} for msg in result]
 
     username = request.cookies.get('username')
     password = request.cookies.get('password')
     good_credentials = are_credentials_good(username, password)
 
-    return render_template('root.html', logged_in=good_credentials, messages=messages)
-
+    return render_template('root.html', logged_in=good_credentials, messages=messages, page=page)
 
 @app.route("/static/<path:filename>")
 def staticfiles(filename):
