@@ -207,6 +207,12 @@ def search():
     else:
         messages = []
 
+    # Convert created_at to datetime objects and convert to Pacific Time
+    pacific_tz = pytz.timezone('America/Los_Angeles')
+    for msg in messages:
+        # Convert the existing datetime object to Pacific Time
+        msg['created_at'] = msg['created_at'].astimezone(pacific_tz)
+
     return render_template('search.html', logged_in = good_credentials, messages=messages, query=query, page=page)
 
 @app.route("/static/<path:filename>")
