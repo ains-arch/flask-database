@@ -1,17 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Create New Post</h2>
+<h2>new post</h2>
 
 {% if error_message %}
 <p style='color: red;'>{{ error_message }}</p>
 {% endif %}
 
+<p>so you want to add something to my immense database of random babbling?</p>
+<p>to rest there for all eternity?</p>
+<p>or at least until i accidentally delete the volumes for these docker containers?</p>
 <form action="{{ url_for('create_message') }}" method="post">
     <div class="form-group">
-        <label for="messageText">Your Post:</label>
-        <textarea class="form-control" id="messageText" name="text" rows="3" placeholder="Now what..." required></textarea>
+        <textarea class="form-control" id="messageText" name="text" rows="3" placeholder="hot takes go here" required></textarea>
     </div>
-    <button type="submit" class="btn btn-primary">Post</button>
+    <button type="submit" class="btn btn-primary">hit the slay button</button>
 </form>
 {% endblock %}

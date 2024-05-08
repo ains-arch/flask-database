@@ -16,21 +16,16 @@ from flask import (
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 import sqlalchemy
-
 import subprocess
-
-def install_package(package_name):
-    subprocess.check_call(["pip", "install", package_name])
-
-# Install pytz
-install_package("pytz")
-
-import pytz
 
 app = Flask(__name__)
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
+
+# DATABASE CONNECTION! UNCOMMENT ONE OF THESE AND REPLACE VARIABLES
+# psql_connection = "postgresql://$PROD USERNAME:$PROD PASSWORD@db:5432"
 psql_connection = "postgresql://hello_flask:hello_flask@dbd:5432"
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -44,6 +39,7 @@ class User(db.Model):
         self.name = name
         self.password = password
 
+
 def are_credentials_good(username, password):
     engine = sqlalchemy.create_engine(psql_connection)
     with engine.connect() as connection:
@@ -54,6 +50,7 @@ def are_credentials_good(username, password):
         # Check if the user was found and the password matches
         if result and result[0] == password:
             return True
+
 
 @app.route("/")
 def root():
@@ -75,22 +72,17 @@ def root():
 
     messages = [{'text': msg[0], 'created_at': msg[1], 'name': msg[2]} for msg in result]
 
-    # Convert created_at to datetime objects and convert to Pacific Time
-    pacific_tz = pytz.timezone('America/Los_Angeles')
-    for msg in messages:
-        # Convert the existing datetime object to Pacific Time
-        msg['created_at'] = msg['created_at'].astimezone(pacific_tz)
-
     username = request.cookies.get('username')
     password = request.cookies.get('password')
     good_credentials = are_credentials_good(username, password)
 
     return render_template('root.html', logged_in=good_credentials, messages=messages, page=page)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # requests (plural) library for downloading;
-    # now we need request singular 
+    # now we need request singular
     username = request.form.get('username')
     password = request.form.get('password')
 
@@ -107,13 +99,11 @@ def login():
         else:
             # if we get here, then we're logged in
             # create a cookie that contains the username/password info
-
-            template = render_template('login.html', bad_credentials=False, logged_in=True)
-            
-            response = make_response(template)
+            response = redirect(url_for('root'))
             response.set_cookie('username', username)
             response.set_cookie('password', password)
             return response
+
 
 @app.route('/logout')
 def logout():
@@ -123,6 +113,7 @@ def logout():
     resp.set_cookie('password', '', expires=0)       # Clear the password cookie
     return resp  # Return the modified response that redirects and clears cookies
 
+
 @app.route("/create_account", methods=["GET", "POST"])
 def create_account():
     if request.method == 'POST':
@@ -131,7 +122,7 @@ def create_account():
         confirm_password = request.form.get('confirm_password')
 
         if password != confirm_password:
-            return render_template('create_account.html', error_message='Passwords do not match.')
+            return render_template('create_account.html', error_message='passwords do not match.')
 
         engine = sqlalchemy.create_engine(psql_connection)
         with engine.begin() as connection:  # Start a transaction
@@ -139,7 +130,7 @@ def create_account():
             sqlcommand = "SELECT count(*) FROM users WHERE name = :name"
             result = connection.execute(text(sqlcommand), {'name': name}).scalar()
             if result > 0:
-                return render_template('create_account.html', error_message='Username already in use.')
+                return render_template('create_account.html', error_message='username already in use.')
 
             # Insert the new user if the email is not in use
             sqlcommand = "INSERT INTO users (name, password) VALUES (:name, :password)"
@@ -147,6 +138,7 @@ def create_account():
 
         return redirect(url_for('login'))
     return render_template('create_account.html')
+
 
 @app.route('/create_message', methods=['GET', 'POST'])
 def create_message():
@@ -178,7 +170,8 @@ def create_message():
 
         return redirect(url_for('root'))  # Redirect to home page to see all tweets
 
-    return render_template('create_mossage.html', logged_in = good_credentials)
+    return render_template('create_message.html', logged_in=good_credentials)
+
 
 @app.route('/search')
 def search():
@@ -191,11 +184,14 @@ def search():
     good_credentials = are_credentials_good(username, password)
     if query:
         sqlcommand = """
-        SELECT u.name, t.text, ts_headline(t.text, plainto_tsquery(:query)) AS highlighted_text, t.created_at
+        SELECT u.name, t.text,
+        ts_headline(t.text, plainto_tsquery(:query), 'StartSel=<mark>, StopSel=</mark>') AS highlighted_text,
+        t.created_at
         FROM tweets t
         JOIN users u ON t.id_users = u.id_users
         WHERE to_tsvector('english', t.text) @@ plainto_tsquery(:query)
-        ORDER BY ts_rank_cd(to_tsvector('english', t.text), plainto_tsquery(:query)) DESC
+        ORDER BY ts_rank_cd(to_tsvector('english', t.text), plainto_tsquery(:query)) DESC,
+        u.name ASC
         LIMIT :limit OFFSET :offset;
         """
         engine = sqlalchemy.create_engine(psql_connection)
@@ -207,17 +203,13 @@ def search():
     else:
         messages = []
 
-    # Convert created_at to datetime objects and convert to Pacific Time
-    pacific_tz = pytz.timezone('America/Los_Angeles')
-    for msg in messages:
-        # Convert the existing datetime object to Pacific Time
-        msg['created_at'] = msg['created_at'].astimezone(pacific_tz)
+    return render_template('search.html', logged_in=good_credentials, messages=messages, query=query, page=page)
 
-    return render_template('search.html', logged_in = good_credentials, messages=messages, query=query, page=page)
 
 @app.route("/static/<path:filename>")
 def staticfiles(filename):
     return send_from_directory(app.config["STATIC_FOLDER"], filename)
+
 
 @app.route("/media/<path:filename>")
 def mediafiles(filename):

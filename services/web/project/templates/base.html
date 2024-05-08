@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>When The Data Is Large</title>
+    <title>Post.hub</title>
     <style>
         body {
             font-family: Helvetica, sans-serif;
@@ -33,17 +33,17 @@
 </head>
 <body>
     <header>
-        <h1>Welcome to Poster!!!</h1>
+        <h1>welcome to post dot hub</h1>
         <nav>
             <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href='/search'>Search</a></li>
+                <li><a href="/">timeline</a></li>
+                <li><a href='/search'>search</a></li>
                 {% if logged_in %}
-                <li><a href="/create_message">New Post</a></li>
-                <li><a href="/logout">Logout</a></li>
+                <li><a href="/create_message">new post</a></li>
+                <li><a href="/logout">logout</a></li>
                 {% else %}
-                <li><a href="/login">Login</a></li>
-                <li><a href="/create_account">Create Account</a></li>
+                <li><a href="/login">login</a></li>
+                <li><a href="/create_account">create account</a></li>
                 {% endif %}
             </ul>
         </nav>

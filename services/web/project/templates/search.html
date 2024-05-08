@@ -2,10 +2,12 @@
 
 {% block content %}
 
-<h2>Search Posts</h2>
+<h2>blazing fast search function</h2>
+<p>over a million faker-generated gibberishposts, here for the searching. watch how fast you get results. that's the power of RUM indexes, baby</p>
+<p>they're sorted by relevancy, if you're curious, and then alphabetically by username because i hate inconsistency</p>
 <form action="{{ url_for('search') }}" method="get">
-    <input type="text" name="q" placeholder="Search posts..." required>
-    <button type="submit">Search</button>
+    <input type="text" name="q" placeholder="whatcha lookin for?" required>
+    <button type="submit">search</button>
 </form>
 
 {% if query %}
@@ -22,7 +24,7 @@
         {% endif %}
         <a href="{{ url_for('search', q=query, page=page+1) }}">Next</a>
     {% else %}
-        <p>No results found.</p>
+        <p>that didn't match any posts, so either you can't spell or i can't program. and i know i know how to program.</p>
     {% endif %}
 {% endif %}
 {% endblock %}
