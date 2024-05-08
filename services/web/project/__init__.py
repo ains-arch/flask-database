@@ -8,7 +8,9 @@ from flask import (
     send_from_directory,
     request,
     render_template,
-    make_response
+    make_response,
+    redirect,
+    url_for
 )
 
 from flask_sqlalchemy import SQLAlchemy
@@ -106,9 +108,13 @@ def staticfiles(filename):
 def mediafiles(filename):
     return send_from_directory(app.config["MEDIA_FOLDER"], filename)
  
-@app.route("/logout", methods=["GET", "POST"])
+@app.route('/logout')
 def logout():
-    pass
+    # Clear the cookies by setting them to expire immediately
+    resp = make_response(redirect(url_for('login')))  # Redirect within the response
+    resp.set_cookie('username', '', expires=0)       # Clear the username cookie
+    resp.set_cookie('password', '', expires=0)       # Clear the password cookie
+    return resp  # Return the modified response that redirects and clears cookies
 
 
 @app.route("/create_account", methods=["GET", "POST"])
