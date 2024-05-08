@@ -115,15 +115,6 @@ def login():
             response.set_cookie('password', password)
             return response
 
-@app.route("/static/<path:filename>")
-def staticfiles(filename):
-    return send_from_directory(app.config["STATIC_FOLDER"], filename)
-
-
-@app.route("/media/<path:filename>")
-def mediafiles(filename):
-    return send_from_directory(app.config["MEDIA_FOLDER"], filename)
- 
 @app.route('/logout')
 def logout():
     # Clear the cookies by setting them to expire immediately
@@ -131,7 +122,6 @@ def logout():
     resp.set_cookie('username', '', expires=0)       # Clear the username cookie
     resp.set_cookie('password', '', expires=0)       # Clear the password cookie
     return resp  # Return the modified response that redirects and clears cookies
-
 
 @app.route("/create_account", methods=["GET", "POST"])
 def create_account():
@@ -190,8 +180,39 @@ def create_message():
 
     return render_template('create_mossage.html', logged_in = good_credentials)
 
-
-
-@app.route("/search", methods=["GET", "POST"])
+@app.route('/search')
 def search():
-    pass
+    query = request.args.get('q', '')
+    page = request.args.get('page', 1, type=int)
+    messages_per_page = 20
+    offset = (page - 1) * messages_per_page
+    username = request.cookies.get('username')
+    password = request.cookies.get('password')
+    good_credentials = are_credentials_good(username, password)
+    if query:
+        sqlcommand = """
+        SELECT u.name, t.text, ts_headline(t.text, plainto_tsquery(:query)) AS highlighted_text, t.created_at
+        FROM tweets t
+        JOIN users u ON t.id_users = u.id_users
+        WHERE to_tsvector('english', t.text) @@ plainto_tsquery(:query)
+        ORDER BY ts_rank_cd(to_tsvector('english', t.text), plainto_tsquery(:query)) DESC
+        LIMIT :limit OFFSET :offset;
+        """
+        engine = sqlalchemy.create_engine(psql_connection)
+        connection = engine.connect()
+        result = connection.execute(text(sqlcommand), {'query': query, 'limit': messages_per_page, 'offset': offset}).fetchall()
+        connection.close()
+
+        messages = [{'name': msg[0], 'highlighted_text': msg[2], 'created_at': msg[3]} for msg in result]
+    else:
+        messages = []
+
+    return render_template('search.html', logged_in = good_credentials, messages=messages, query=query, page=page)
+
+@app.route("/static/<path:filename>")
+def staticfiles(filename):
+    return send_from_directory(app.config["STATIC_FOLDER"], filename)
+
+@app.route("/media/<path:filename>")
+def mediafiles(filename):
+    return send_from_directory(app.config["MEDIA_FOLDER"], filename)
