@@ -35,7 +35,7 @@ $ docker-compose -f docker-compose.yml logs dbd
 $ docker-compose -f docker-compose.yml logs webd
 ```
 
-Test it out at [http://localhost:8080](http://localhost:8080).
+Test it out at [http://localhost:1361](http://localhost:1361).
 
 Add a small amount of data:
 
@@ -43,24 +43,19 @@ Note that this may take a few minutes depending on the load on your server.
 
 ```sh
 $ cd data
-$ ./fake_urls.sh 10000 1000 1000 dev
+$ ./fake_data.sh 10000 1000 1000 dev
+Generating URLs...
 Insertion complete.
-
-real    0m20.361s
-user    0m7.521s
-sys     0m1.130s
-$ ./fake_users.sh 10000 1000 1000 dev
+...
+Inserted URLs.
+Generating users...
 Insertion complete.
-
-real    0m1.822s
-user    0m0.763s
-sys     0m0.169s
-$ ./fake_tweets.sh 10000 1000 1000 dev
+...
+Inserted users.
+Generating tweets...
 Insertion complete.
-
-real    0m4.717s
-user    0m1.060s
-sys     0m0.201s
+...
+Inserted tweets.
 $ cd ..
 ```
 
@@ -92,19 +87,15 @@ FROM
     tweets;
  table_name | row_count
 ------------+-----------
- urls       |     10387
- users      |      1009
- tweets     |      1049
+ urls       |     10000
+ users      |      1000
+ tweets     |      1000
 (3 rows)
 ```
 
-Due to randomness in the data generation, your numbers will be a little
-different than mine. They should all be equal to or greater than the input
-row numbers, though.
-
 ### Production
 
-1. Create a *.env.prod* file in the root folder of the project. Choose a username and password.
+Create a `.env.prod` file in the root folder of the project. Choose a username and password.
 
 ```sh
 FLASK_APP=project/__init__.py
@@ -118,37 +109,70 @@ PGUSER=$YOUR USERNAME HERE
 PGPASSWORD=$YOUR PASSWORD HERE
 ```
 
-2. Create a *.env.prod.db* file in the root folder of the project. Use the same username and password.
+Create a `.env.prod.db` file in the root folder of the project. Use the same username and password.
 
 ```sh
 POSTGRES_USER=$YOUR USERNAME HERE
 POSTGRES_PASSWORD=$YOUR PASSWORD HERE
 ```
 
-3. Build the images and run the containers:
+Copy the `.env.prod` file into the data folder.
+
+```sh
+$ cp .env.prod data
+```
+
+Edit the `services/web/project/__init__.py` file to include your database credentials.
+
+Build the images and run the containers:
 
 ```sh
 $ docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
-Test it out at [http://localhost:8181](http://localhost:8181)!
+Test it out at [http://localhost:1447](http://localhost:1447)!
 
 Add the data:
 
 ```sh
 $ cd data
-$ nohup ./fake_urls.sh 10000000 1000000 1000000 prod > data_urls.log &
-$ nohup ./fake_users.sh 10000000 1000000 1000000 prod > data_users.log &
-$ nohup ./fake_tweets.sh 10000000 1000000 1000000 prod > data_tweets.log &
-$ cat data_urls.log
-$ cat data_users.log
+$ nohup ./fake_data.sh 10000000 1000000 1000000 prod > data_load_prod.log &
 $ cat data_tweets.log
+nohup: ignoring input
+Generating URLs...
+Insertion complete.
+
+real    56m25.733s
+user    25m13.258s
+sys     3m17.477s
+Inserted URLs.
+Generating users...
+Insertion complete.
+
+real    8m50.155s
+user    4m15.048s
+sys     0m16.419s
+Inserted users.
+Generating tweets...
+Insertion complete.
+
+real    8m14.107s
+user    2m29.554s
+sys     0m21.445s
+Inserted tweets.
 $ cd ..
 ```
 
 In order to speed up data insertion, it may be helpful to drop
-and recreate the indexes. Information on how to log into the database
-can be found below.
+and recreate the indexes.
+
+```sh
+$ source .env.prod
+$ docker-compose -f docker-compose.prod.yml exec -e PGUSER="$PGUSER" -e PGPASSWORD="$PGPASSWORD" db psql
+psql (16.2 (Debian 16.2-1.pgdg110+2))
+Type "help" for help.
+$YOUR USERNAME HERE=#
+```
 ```sql
 DROP INDEX users_id_urls_idx,
            users_name_idx,
@@ -172,13 +196,6 @@ CREATE INDEX tweets_created_at_id_tweets_idx ON tweets(created_at DESC, id_tweet
 
 Log into the database to check that the data loaded correctly:
 
-```sh
-$ source .env.prod
-$ docker-compose -f docker-compose.prod.yml exec -e PGUSER="$PGUSER" -e PGPASSWORD="$PGPASSWORD" db psql
-psql (16.2 (Debian 16.2-1.pgdg110+2))
-Type "help" for help.
-$YOUR USERNAME HERE=#
-```
 ```sql
 SELECT
     'urls' AS table_name,
@@ -197,4 +214,12 @@ SELECT
     COUNT(*) AS row_count
 FROM
     tweets;
+ table_name | row_count
+------------+-----------
+ urls       |  10000000
+ users      |   1000000
+ tweets     |   1000000
+(3 rows)
 ```
+
+Your website should now be up and running!
