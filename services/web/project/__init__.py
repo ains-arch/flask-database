@@ -119,7 +119,29 @@ def logout():
 
 @app.route("/create_account", methods=["GET", "POST"])
 def create_account():
-    pass
+    if request.method == 'POST':
+        name = request.form.get('username')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+
+        if password != confirm_password:
+            return render_template('create_account.html', error_message='Passwords do not match.')
+
+        engine = sqlalchemy.create_engine(psql_connection)
+        with engine.begin() as connection:  # Start a transaction
+            # Check if the email is already in use
+            sqlcommand = "SELECT count(*) FROM users WHERE name = :name"
+            result = connection.execute(text(sqlcommand), {'name': name}).scalar()
+            if result > 0:
+                return render_template('create_account.html', error_message='Username already in use.')
+
+            # Insert the new user if the email is not in use
+            sqlcommand = "INSERT INTO users (name, password) VALUES (:name, :password)"
+            connection.execute(text(sqlcommand), {'name': name, 'password': password})
+
+        return redirect(url_for('login'))
+    return render_template('create_account.html')
+
 
 
 @app.route("/create_message", methods=["GET", "POST"])
