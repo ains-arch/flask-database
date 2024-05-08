@@ -69,6 +69,34 @@ def root():
 
     return render_template('root.html', logged_in=good_credentials, messages=messages, page=page)
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    # requests (plural) library for downloading;
+    # now we need request singular 
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    good_credentials = are_credentials_good(username, password)
+
+    # the first time we've visited, no form submission
+    if username is None:
+        return render_template('login.html', bad_credentials=False)
+
+    # they submitted a form; we're on the POST method
+    else:
+        if not good_credentials:
+            return render_template('login.html', bad_credentials=True)
+        else:
+            # if we get here, then we're logged in
+            # create a cookie that contains the username/password info
+
+            template = render_template('login.html', bad_credentials=False, logged_in=True)
+            
+            response = make_response(template)
+            response.set_cookie('username', username)
+            response.set_cookie('password', password)
+            return response
+
 @app.route("/static/<path:filename>")
 def staticfiles(filename):
     return send_from_directory(app.config["STATIC_FOLDER"], filename)
@@ -77,50 +105,7 @@ def staticfiles(filename):
 @app.route("/media/<path:filename>")
 def mediafiles(filename):
     return send_from_directory(app.config["MEDIA_FOLDER"], filename)
-
-
-def print_debug_info():
-    # GET method
-    print('request.args.get("username")=', request.args.get("username"))
-    print('request.args.get{"password"}=', request.args.get("password"))
-
-    # POST method
-    print('request.form.get{"username"}=', request.form.get("username"))
-    print('request.form.get{"password"}=', request.form.get("password"))
-
-    # cookies
-    print('request.cookies.get{"username"}=', request.cookies.get("username"))
-    print('request.cookies.get{"password"}=', request.cookies.get("password"))
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    print_debug_info()
-
-    username = request.form.get("username")
-    password = request.form.get("password")
-
-    print('username=', username)
-    print('password=', password)
-
-    good_credentials = are_credentials_good(username, password)
-    print('good credentials=', good_credentials)
-
-    if username is None:
-        return render_template('login.html', bad_credentials=False)
-    else:
-        if not good_credentials:
-            return render_template('login.html', bad_credentials=True)
-        else:
-            template = render_template('login.html', bad_credentials=False, logged_in=True)
-            response = make_response(template)
-            response.set_cookie('username', username)
-            response.set_cookie('password', password)
-            return response
-
-    return render_template('login.html')
-
-
+ 
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
     pass
