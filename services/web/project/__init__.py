@@ -17,6 +17,16 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 import sqlalchemy
 
+import subprocess
+
+def install_package(package_name):
+    subprocess.check_call(["pip", "install", package_name])
+
+# Install pytz
+install_package("pytz")
+
+import pytz
+
 app = Flask(__name__)
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
@@ -64,6 +74,12 @@ def root():
     connection.close()
 
     messages = [{'text': msg[0], 'created_at': msg[1], 'name': msg[2]} for msg in result]
+
+    # Convert created_at to datetime objects and convert to Pacific Time
+    pacific_tz = pytz.timezone('America/Los_Angeles')
+    for msg in messages:
+        # Convert the existing datetime object to Pacific Time
+        msg['created_at'] = msg['created_at'].astimezone(pacific_tz)
 
     username = request.cookies.get('username')
     password = request.cookies.get('password')
@@ -142,11 +158,38 @@ def create_account():
         return redirect(url_for('login'))
     return render_template('create_account.html')
 
-
-
-@app.route("/create_message", methods=["GET", "POST"])
+@app.route('/create_message', methods=['GET', 'POST'])
 def create_message():
-    pass
+    engine = sqlalchemy.create_engine(psql_connection)
+    username = request.cookies.get('username')
+    password = request.cookies.get('password')
+    good_credentials = are_credentials_good(username, password)
+    if request.method == 'POST':
+        message_text = request.form['text']
+        username = request.cookies.get('username')  # Fetch username from cookies
+        with engine.begin() as connection:  # Automatic transaction management
+            # Fetch user ID from the users table based on the username (screen_name)
+            user_id_result = connection.execute(
+                text("SELECT id_users FROM users WHERE name = :username"),
+                {'username': username}
+            ).fetchone()
+
+            if not user_id_result:
+                return "User not found", 404  # Or handle appropriately
+
+            user_id = user_id_result[0]
+            created_at = datetime.now()
+
+            # SQL to insert the new tweet
+            connection.execute(
+                text("INSERT INTO tweets (id_users, text, created_at) VALUES (:id_users, :text, :created_at)"),
+                {'id_users': user_id, 'text': message_text, 'created_at': created_at}
+            )
+
+        return redirect(url_for('root'))  # Redirect to home page to see all tweets
+
+    return render_template('create_mossage.html', logged_in = good_credentials)
+
 
 
 @app.route("/search", methods=["GET", "POST"])
