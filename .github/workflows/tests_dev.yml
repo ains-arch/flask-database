@@ -23,6 +23,6 @@ jobs:
         docker-compose logs dbd
         docker-compose logs webd
         cd data
-        ./fake_data.sh 10000000 1000000 1000000 dev      
+        ./fake_data.sh 10000 1000 1000 dev      
         cd ..
         docker-compose exec -T dbd psql -c "SELECT 'urls' AS table_name, COUNT(*) AS row_count FROM urls UNION ALL SELECT 'tweets' AS table_name, COUNT(*) AS row_count FROM tweets UNION ALL SELECT 'users' AS table_name, COUNT(*) AS row_count FROM users;"
