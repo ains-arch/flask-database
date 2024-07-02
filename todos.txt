@@ -1,0 +1,3 @@
+TODO: make custom error pages so nginx doesn't reveal information
+TODO: figure out how to store passwords not in plaintext
+TODO: handle page= negative numbers
