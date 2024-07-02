@@ -15,9 +15,7 @@ First, if you're able, remove the volumes you've created in previous work
 to free up disk space.
 
 ```sh
-$ docker stop $(docker ps -q)
-$ docker rm $(docker ps -qa)
-$ docker volume prune --all
+$ ./reboot.sh
 ```
 
 ### Development
@@ -31,8 +29,8 @@ $ docker compose up -d --build
 Check it worked as expected:
 
 ```sh
-$ docker compose -f docker compose.yml logs dbd
-$ docker compose -f docker compose.yml logs webd
+$ docker compose -f docker-compose.yml logs dbd
+$ docker compose -f docker-compose.yml logs webd
 ```
 
 Test it out at [http://localhost:1361](http://localhost:1361).
@@ -127,7 +125,7 @@ Edit the `services/web/project/__init__.py` file to include your database creden
 Build the images and run the containers:
 
 ```sh
-$ docker compose -f docker compose.prod.yml up -d --build
+$ docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 Test it out at [http://localhost:1447](http://localhost:1447)!
@@ -168,7 +166,7 @@ and recreate the indexes.
 
 ```sh
 $ source .env.prod
-$ docker compose -f docker compose.prod.yml exec -e PGUSER="$PGUSER" -e PGPASSWORD="$PGPASSWORD" db psql
+$ docker compose -f docker-compose.prod.yml exec -e PGUSER="$PGUSER" -e PGPASSWORD="$PGPASSWORD" db psql
 psql (16.2 (Debian 16.2-1.pgdg110+2))
 Type "help" for help.
 $YOUR USERNAME HERE=#
