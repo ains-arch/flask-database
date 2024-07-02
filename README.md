@@ -25,14 +25,14 @@ $ docker volume prune --all
 Build the images and run the containers:
 
 ```sh
-$ docker-compose up -d --build
+$ docker compose up -d --build
 ```
 
 Check it worked as expected:
 
 ```sh
-$ docker-compose -f docker-compose.yml logs dbd
-$ docker-compose -f docker-compose.yml logs webd
+$ docker compose -f docker compose.yml logs dbd
+$ docker compose -f docker compose.yml logs webd
 ```
 
 Test it out at [http://localhost:1361](http://localhost:1361).
@@ -62,7 +62,7 @@ $ cd ..
 Check the data loaded correctly:
 
 ```sh
-$ docker-compose exec dbd psql
+$ docker compose exec dbd psql
 psql (16.2 (Debian 16.2-1.pgdg110+2))
 Type "help" for help.
 hello_flask=#
@@ -127,7 +127,7 @@ Edit the `services/web/project/__init__.py` file to include your database creden
 Build the images and run the containers:
 
 ```sh
-$ docker-compose -f docker-compose.prod.yml up -d --build
+$ docker compose -f docker compose.prod.yml up -d --build
 ```
 
 Test it out at [http://localhost:1447](http://localhost:1447)!
@@ -168,7 +168,7 @@ and recreate the indexes.
 
 ```sh
 $ source .env.prod
-$ docker-compose -f docker-compose.prod.yml exec -e PGUSER="$PGUSER" -e PGPASSWORD="$PGPASSWORD" db psql
+$ docker compose -f docker compose.prod.yml exec -e PGUSER="$PGUSER" -e PGPASSWORD="$PGPASSWORD" db psql
 psql (16.2 (Debian 16.2-1.pgdg110+2))
 Type "help" for help.
 $YOUR USERNAME HERE=#
