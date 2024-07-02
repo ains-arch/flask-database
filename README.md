@@ -3,10 +3,11 @@
 
 ## Overview
 
-This repo contains all the necessary files to host a simple web app.
+This repo contains all the necessary files to host a basic user-generated media web app.
 The development environment configures the default Flask development server
 to run on Docker with Postgres.
-The production environmental also includes Nginx and Gunicorn,
+The Postgres database includes three tables with the necessary indexes and references.
+The production environment also includes Nginx and Gunicorn,
 and supports serving both static and user-uploaded media files via Nginx. 
 
 ## Build Instructions
