@@ -12,8 +12,10 @@ and supports serving both static and user-uploaded media files via Nginx.
 
 ## Build Instructions
 
-First, if you're able, remove the volumes you've created in previous work
-to free up disk space.
+First, if you're able,
+stop all running docker containers,
+remove all containers, including stopped ones,
+and prune all docker volumes.
 
 ```sh
 $ ./reboot.sh
