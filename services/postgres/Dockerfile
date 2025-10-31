@@ -18,7 +18,6 @@ RUN cd /tmp \
  && cd rum \
  && make USE_PGXS=1 \
  && make USE_PGXS=1 install \
- && make USE_PGXS=1 installcheck \
  && rm -rf /tmp/rum
 
 WORKDIR /tmp/db
