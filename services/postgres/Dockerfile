@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y \
     vim \
     git \
     gcc \
-    postgresql-server-dev-16
+    postgresql-18 \
+    postgresql-server-dev-18
 
 # install rum extensions from source
 RUN cd /tmp \
@@ -17,6 +18,7 @@ RUN cd /tmp \
  && cd rum \
  && make USE_PGXS=1 \
  && make USE_PGXS=1 install \
+ && make USE_PGXS=1 installcheck \
  && rm -rf /tmp/rum
 
 WORKDIR /tmp/db
