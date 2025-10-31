@@ -1,4 +1,4 @@
-FROM postgis/postgis
+FROM postgis/postgis:17-3.5
 
 RUN apt-get update && apt-get install -y \
     less \
@@ -6,8 +6,10 @@ RUN apt-get update && apt-get install -y \
     vim \
     git \
     gcc \
-    postgresql-18 \
-    postgresql-server-dev-18
+    postgresql-server-dev-17
+
+RUN pg_config --version \
+ && test -f "$(pg_config --includedir-server)/postgres.h"
 
 # install rum extensions from source
 RUN cd /tmp \
